@@ -7,6 +7,10 @@ set.seed(123)
 flights$delayed = ifelse(flights$arr_delay > 15, 1, 0)
 dataset = na.omit(flights[, c("dep_delay", "air_time", "distance", "delayed")])
 
+#Selektovanje 200
+selected_indices = sample(1:nrow(dataset), 200)
+dataset = dataset[selected_indices, ]
+
 #Izbacivanje
 num_missing = round(0.20 * nrow(dataset))
 missing_indices = sample(1:nrow(dataset), num_missing)
@@ -34,11 +38,11 @@ complete_train_ss = complete(imputed_train_ss)
 imputed_test_ss = mice::mice(test_data_ss, method = 'pmm', maxit = 50)
 complete_test_ss = complete(imputed_test_ss)
 
-model_imputed_data_srs = lm(delayed ~ air_time + distance + dep_delay, data = complete_train_srs)
+model_imputed_data_srs = glm(delayed ~ air_time + distance + dep_delay, data = complete_train_srs, family = binomial)
 predictions_imputed_data_srs = ifelse(predict(model_imputed_data_srs, newdata = complete_test_srs) >= 0.5, 1, 0)
 cm_imputed_data_srs = confusionMatrix(table(predictions_imputed_data_srs, complete_test_srs$delayed))
 
-model_imputed_data_ss = lm(delayed ~ air_time + distance + dep_delay, data = complete_train_ss)
+model_imputed_data_ss = glm(delayed ~ air_time + distance + dep_delay, data = complete_train_ss, family = binomial)
 predictions_imputed_data_ss = ifelse(predict(model_imputed_data_ss, newdata = complete_test_ss) >= 0.5, 1, 0)
 cm_imputed_data_ss = confusionMatrix(table(predictions_imputed_data_ss, complete_test_ss$delayed))
 
@@ -53,11 +57,11 @@ train_index_ss = createDataPartition(data_clean$delayed, p = 0.7, list = FALSE)
 train_missing_ss = data_clean[train_index_ss, ]
 test_missing_ss = data_clean[-train_index_ss, ]
 
-model_missing_data_srs = lm(delayed ~ air_time + distance + dep_delay, data = train_missing_srs)
+model_missing_data_srs = glm(delayed ~ air_time + distance + dep_delay, data = train_missing_srs, family = binomial)
 predictions_missing_data_srs = ifelse(predict(model_missing_data_srs, newdata = test_missing_srs) >= 0.5, 1, 0)
 cm_missing_data_srs = confusionMatrix(table(predictions_missing_data_srs, test_missing_srs$delayed))
 
-model_missing_data_ss = lm(delayed ~ air_time + distance + dep_delay, data = train_missing_ss)
+model_missing_data_ss = glm(delayed ~ air_time + distance + dep_delay, data = train_missing_ss, family = binomial)
 predictions_missing_data_ss = ifelse(predict(model_missing_data_ss, newdata = test_missing_ss) >= 0.5, 1, 0)
 cm_missing_data_ss = confusionMatrix(table(predictions_missing_data_ss, test_missing_ss$delayed))
 

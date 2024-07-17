@@ -9,6 +9,10 @@ set.seed(123)
 flights$delayed = ifelse(flights$arr_delay > 15, "Yes", "No")
 dataset = na.omit(flights[, c("dep_delay", "air_time", "distance", "delayed")])
 
+#Selektovanje 200
+selected_indices = sample(1:nrow(dataset), 200)
+dataset = dataset[selected_indices, ]
+
 #Izbacivanje
 num_missing = round(0.20 * nrow(dataset))
 missing_indices = sample(1:nrow(dataset), num_missing)
